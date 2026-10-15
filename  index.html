@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Bermain Jujur & Rukun - SD Kelas 1</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandYellow: '#FFD166',
+                        brandPink: '#FF85A1',
+                        brandBlue: '#4EA8DE',
+                        brandGreen: '#06D6A0',
+                        brandPurple: '#9D4EDD',
+                        brandOrange: '#FF9F1C'
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            background-color: #F0F8FF;
+            background-image: radial-gradient(#BEE3F8 2px, transparent 2px);
+            background-size: 24px 24px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .btn-bounce {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-bounce:hover {
+            transform: scale(1.05) rotate(-1deg);
+        }
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+
+        .custom-card {
+            border-radius: 2rem;
+            box-shadow: 0 12px 0 0 rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone-active {
+            border-color: #06D6A0 !important;
+            background-color: #E6FFFA !important;
+            transform: scale(1.02);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4EA8DE;
+            border-radius: 10px;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b-4 border-brandBlue shadow-md px-3 py-2 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2">
+            
+            <!-- Logo & Avatar Badge -->
+            <div class="flex items-center gap-3">
+                <div id="userAvatarHeader" class="w-12 h-12 rounded-full bg-brandYellow border-4 border-white shadow-md flex items-center justify-center text-2xl cursor-pointer hover:scale-110 transition" onclick="switchTab('beranda')">
+                    👦
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-2xl font-bold text-brandPurple leading-none flex items-center gap-1">
+                        <span>Petualangan Main Rukun</span>
+                        <span class="text-xs bg-brandPink text-white px-2 py-0.5 rounded-full font-sans">Kelas 1C</span>
+                    </h1>
+                    <p id="userNameHeader" class="text-xs sm:text-sm text-slate-500 font-semibold">Teman Kecil</p>
+                </div>
+            </div>
+
+            <!-- Global Score & Progress Bar -->
+            <div class="flex items-center gap-4 bg-amber-50 px-3 py-1.5 rounded-2xl border-2 border-amber-200">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-2xl">⭐</span>
+                    <span id="globalScore" class="text-xl font-bold text-amber-600">0</span>
+                </div>
+                <div class="w-24 sm:w-32 bg-slate-200 rounded-full h-3 overflow-hidden border border-slate-300">
+                    <div id="globalProgressBar" class="bg-brandGreen h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <nav class="w-full md:w-auto flex justify-center items-center gap-1 sm:gap-2 overflow-x-auto py-1">
+                <button onclick="switchTab('beranda')" id="nav-beranda" class="nav-btn bg-brandBlue text-white px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 shadow hover:brightness-105 active:scale-95">
+                    🏠 <span>Beranda</span>
+                </button>
+                <button onclick="switchTab('materi')" id="nav-materi" class="nav-btn bg-white text-slate-600 px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 hover:bg-slate-100 active:scale-95">
+                    📚 <span>Materi</span>
+                </button>
+                <button onclick="switchTab('simulasi')" id="nav-simulasi" class="nav-btn bg-white text-slate-600 px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 hover:bg-slate-100 active:scale-95">
+                    🔬 <span>Simulasi</span>
+                </button>
+                <button onclick="switchTab('game')" id="nav-game" class="nav-btn bg-white text-slate-600 px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 hover:bg-slate-100 active:scale-95">
+                    🎮 <span>Permainan</span>
+                </button>
+                <button onclick="switchTab('kuis')" id="nav-kuis" class="nav-btn bg-white text-slate-600 px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 hover:bg-slate-100 active:scale-95">
+                    📝 <span>Kuis</span>
+                </button>
+                <button onclick="switchTab('hasil')" id="nav-hasil" class="nav-btn bg-white text-slate-600 px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 hover:bg-slate-100 active:scale-95">
+                    🏆 <span>Hasil</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA CONTAINER -->
+    <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- 1. BERANDA TAB -->
+        <section id="tab-beranda" class="tab-content block space-y-6">
+            <div class="bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 border-4 border-white">
+                <div class="space-y-4 max-w-xl z-10">
+                    <span class="bg-yellow-300 text-slate-800 text-xs sm:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                        Level 1 • Mudah & Menyenangkan
+                    </span>
+                    <h2 class="text-3xl sm:text-5xl font-bold leading-tight">Halo Teman Hebat! 👋</h2>
+                    <p class="text-base sm:text-xl text-sky-100 font-medium">
+                        Mari belajar <span class="text-yellow-300 font-bold">Aturan Bermain</span> bersama kawan-kawan! Bermain jadi makin seru, jujur, dan disukai semua teman!
+                    </p>
+                    
+                    <!-- Form Nama & Avatar -->
+                    <div class="bg-white/20 backdrop-blur-md p-4 rounded-2xl border border-white/40 space-y-3">
+                        <label class="block text-sm font-bold text-white">Siapa Nama Panggilanmu?</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="inputStudentName" placeholder="Tulis namamu..." class="w-full px-4 py-2.5 rounded-xl text-slate-800 font-bold focus:outline-none focus:ring-4 focus:ring-yellow-300 text-lg" value="Budi">
+                        </div>
+                        <div class="text-sm font-bold text-white pt-1">Pilih Avatarmu:</div>
+                        <div class="flex gap-3 justify-center sm:justify-start" id="avatarSelector">
+                            <button onclick="selectAvatar('👦')" class="avatar-option text-3xl p-2 rounded-2xl bg-white/40 border-2 border-white hover:bg-yellow-300 transition ring-4 ring-yellow-300">👦</button>
+                            <button onclick="selectAvatar('👧')" class="avatar-option text-3xl p-2 rounded-2xl bg-white/40 border-2 border-white hover:bg-yellow-300 transition">👧</button>
+                            <button onclick="selectAvatar('🧒')" class="avatar-option text-3xl p-2 rounded-2xl bg-white/40 border-2 border-white hover:bg-yellow-300 transition">🧒</button>
+                            <button onclick="selectAvatar('🦊')" class="avatar-option text-3xl p-2 rounded-2xl bg-white/40 border-2 border-white hover:bg-yellow-300 transition">🦊</button>
+                            <button onclick="selectAvatar('🐼')" class="avatar-option text-3xl p-2 rounded-2xl bg-white/40 border-2 border-white hover:bg-yellow-300 transition">🐼</button>
+                        </div>
+                    </div>
+
+                    <button onclick="startJourney()" class="btn-bounce inline-block bg-brandYellow text-slate-900 text-xl font-bold px-8 py-4 rounded-2xl shadow-lg border-b-4 border-amber-500 hover:brightness-110 active:scale-95">
+                        🚀 Mulai Petualangan!
+                    </button>
+                </div>
+                <div class="relative z-10 animate-float text-9xl sm:text-[140px] drop-shadow-xl">
+                    🧸
+                </div>
+            </div>
+
+            <!-- Petunjuk Langkah Belajar -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-sky-100 flex items-center gap-4">
+                    <div class="text-4xl bg-sky-100 p-3 rounded-2xl">1️⃣</div>
+                    <div>
+                        <h3 class="font-bold text-slate-700">Baca Materi</h3>
+                        <p class="text-xs text-slate-500">Pahami aturan bermain rukun dan jujur.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-emerald-100 flex items-center gap-4">
+                    <div class="text-4xl bg-emerald-100 p-3 rounded-2xl">2️⃣</div>
+                    <div>
+                        <h3 class="font-bold text-slate-700">Coba Simulasi</h3>
+                        <p class="text-xs text-slate-500">Lihat akibat jika mematuhi atau melanggar aturan.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-purple-100 flex items-center gap-4">
+                    <div class="text-4xl bg-purple-100 p-3 rounded-2xl">3️⃣</div>
+                    <div>
+                        <h3 class="font-bold text-slate-700">Game & Kuis</h3>
+                        <p class="text-xs text-slate-500">Mainkan tantangan & kumpulkan bintang!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. MATERI TAB -->
+        <section id="tab-materi" class="tab-content hidden space-y-6">
+            <div class="text-center space-y-2">
+                <span class="bg-brandBlue text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Level Mudah</span>
+                <h2 class="text-3xl font-bold text-brandPurple">📚 Mari Belajar Aturan Bermain</h2>
+                <p class="text-slate-600">Klik kartu di bawah untuk mempelajari aturan bermain yang baik!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-3xl border-4 border-sky-200 shadow-md space-y-4 hover:border-brandBlue transition">
+                    <div class="text-6xl text-center p-4 bg-sky-50 rounded-2xl">🤝</div>
+                    <h3 class="text-xl font-bold text-sky-600 text-center">Apa Itu Aturan Bermain?</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Aturan adalah **petunjuk bersama** agar permainan berjalan aman, tertib, dan menyenangkan. Tanpa aturan, permainan akan terasa kacau dan membuat teman sedih!
+                    </p>
+                    <div class="bg-sky-100 p-3 rounded-xl text-xs text-sky-800 font-bold text-center">
+                        ✨ Tujuan: Supaya semua anak merasa gembira dan adil!
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-3xl border-4 border-emerald-200 shadow-md space-y-4 hover:border-brandGreen transition">
+                    <div class="text-6xl text-center p-4 bg-emerald-50 rounded-2xl">🌟</div>
+                    <h3 class="text-xl font-bold text-emerald-600 text-center">Contoh Aturan Baik</h3>
+                    <ul class="text-sm text-slate-600 space-y-2 font-medium">
+                        <li class="flex items-center gap-2">✅ <span><strong>Antre & Bergantian</strong> saat main perosotan.</span></li>
+                        <li class="flex items-center gap-2">✅ <span><strong>Merapikan mainan</strong> setelah selesai.</span></li>
+                        <li class="flex items-center gap-2">✅ <span><strong>Jujur & Tidak Curang</strong> saat bermain petak sempet.</span></li>
+                        <li class="flex items-center gap-2">✅ <span><strong>Pamit</strong> pada orang tua sebelum main.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-3xl border-4 border-rose-200 shadow-md space-y-4 hover:border-brandPink transition">
+                    <div class="text-6xl text-center p-4 bg-rose-50 rounded-2xl">😢</div>
+                    <h3 class="text-xl font-bold text-rose-600 text-center">Akibat Langgar Aturan</h3>
+                    <ul class="text-sm text-slate-600 space-y-2 font-medium">
+                        <li class="flex items-center gap-2">❌ <span>Teman menjadi <strong>sedih atau marah</strong>.</span></li>
+                        <li class="flex items-center gap-2">❌ <span>Bisa terjadi <strong>pertengkaran & cedera</strong>.</span></li>
+                        <li class="flex items-center gap-2">❌ <span>Mainan <strong>rusak & hilang</strong>.</span></li>
+                        <li class="flex items-center gap-2">❌ <span>Tidak ada teman yang ingin <strong>diajak main lagi</strong>.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Interactive Audio Story Player Card -->
+            <div class="bg-amber-100 border-2 border-amber-300 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-4xl">🔊</span>
+                    <div>
+                        <h4 class="font-bold text-amber-900">Pesan Penting Ibu Guru</h4>
+                        <p class="text-xs text-amber-700">Dengarkan pesan manis ini agar selalu ingat aturan bermain!</p>
+                    </div>
+                </div>
+                <button onclick="playTeacherVoice()" class="btn-bounce bg-amber-500 text-white font-bold px-5 py-2.5 rounded-xl shadow hover:bg-amber-600 flex items-center gap-2">
+                    <i class="fa-solid fa-volume-high"></i> Putar Suara
+                </button>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="switchTab('simulasi')" class="btn-bounce bg-brandGreen text-white font-bold px-6 py-3 rounded-2xl shadow-md text-lg">
+                    Lanjut ke Simulasi 🔬 ➡
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. SIMULASI TAB (Sebab - Akibat) -->
+        <section id="tab-simulasi" class="tab-content hidden space-y-6">
+            <div class="text-center space-y-2">
+                <span class="bg-brandPurple text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Level Mudah • Lab Eksperimen</span>
+                <h2 class="text-3xl font-bold text-slate-800">🔬 Simulasi Sebab & Akibat</h2>
+                <p class="text-slate-600">Pilih tindakanmu dan lihat apa yang terjadi pada teman-temanmu!</p>
+            </div>
+
+            <div class="bg-white rounded-3xl border-4 border-purple-200 shadow-lg p-6 space-y-6">
+                <!-- Scenario Selector Buttons -->
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <button onclick="loadSimulationScenario(0)" id="sim-btn-0" class="sim-scen-btn px-4 py-2 rounded-xl border-2 font-bold text-sm bg-purple-600 text-white border-purple-600">
+                        1. Main Perosotan 🛝
+                    </button>
+                    <button onclick="loadSimulationScenario(1)" id="sim-btn-1" class="sim-scen-btn px-4 py-2 rounded-xl border-2 font-bold text-sm bg-slate-100 text-slate-600 border-slate-200">
+                        2. Selesai Main Lego 🧱
+                    </button>
+                    <button onclick="loadSimulationScenario(2)" id="sim-btn-2" class="sim-scen-btn px-4 py-2 rounded-xl border-2 font-bold text-sm bg-slate-100 text-slate-600 border-slate-200">
+                        3. Menyenget Teman 💥
+                    </button>
+                </div>
+
+                <!-- Simulation Display Arena -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <!-- Choice Controls -->
+                    <div class="space-y-4">
+                        <h3 id="simTitle" class="text-xl font-bold text-purple-900">Skenario: Di Taman Perosotan</h3>
+                        <p id="simDesc" class="text-sm text-slate-600">Banyak teman antre mau naik perosotan. Apa pilihan tindakanmu?</p>
+
+                        <div class="space-y-3">
+                            <button onclick="runSimulation('good')" class="w-full text-left p-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 transition flex items-center justify-between group">
+                                <div>
+                                    <span class="text-xs font-bold text-emerald-600 uppercase block">Pilihan A (Taat Aturan)</span>
+                                    <span id="simOptGood" class="font-bold text-slate-800">Mengantre dengan sabar di belakang.</span>
+                                </div>
+                                <span class="text-2xl group-hover:scale-125 transition">✅</span>
+                            </button>
+
+                            <button onclick="runSimulation('bad')" class="w-full text-left p-4 rounded-2xl border-2 border-rose-300 bg-rose-50 hover:bg-rose-100 transition flex items-center justify-between group">
+                                <div>
+                                    <span class="text-xs font-bold text-rose-600 uppercase block">Pilihan B (Melanggar)</span>
+                                    <span id="simOptBad" class="font-bold text-slate-800">Mendorong & merebut barisan depan.</span>
+                                </div>
+                                <span class="text-2xl group-hover:scale-125 transition">❌</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Visual Outcome Stage -->
+                    <div id="simResultStage" class="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 p-6 text-center space-y-4 min-h-[250px] flex flex-col justify-center items-center">
+                        <div id="simReactionEmoji" class="text-7xl animate-bounce">
+                            ❓
+                        </div>
+                        <h4 id="simResultTitle" class="text-lg font-bold text-slate-700">Pilih Aksi Di Samping!</h4>
+                        <p id="simResultDesc" class="text-xs sm:text-sm text-slate-500">
+                            Klik salah satu tombol pilihan di sebelah kiri untuk melihat reaksi teman-temanmu.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button onclick="switchTab('materi')" class="text-slate-500 font-bold hover:underline">
+                    ⬅ Kembali ke Materi
+                </button>
+                <button onclick="switchTab('game')" class="btn-bounce bg-brandOrange text-white font-bold px-6 py-3 rounded-2xl shadow-md text-lg">
+                    Lanjut ke Permainan 🎮 ➡
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. PERMAINAN TAB (Drag & Drop + Touch Tap Alternative) -->
+        <section id="tab-game" class="tab-content hidden space-y-6">
+            <div class="text-center space-y-2">
+                <span class="bg-brandOrange text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Level Sedang • Tantangan 10 Perilaku</span>
+                <h2 class="text-3xl font-bold text-slate-800">🎮 Permainan: Kelompokkan Perilaku!</h2>
+                <p class="text-slate-600">Seret (drag) atau Klik kartu di bawah lalu tempatkan ke kotak yang sesuai!</p>
+            </div>
+
+            <!-- Game Progress Indicators -->
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow border border-slate-200">
+                <div class="text-sm font-bold text-slate-600">
+                    Sisa Kartu: <span id="gameRemainingCount" class="text-brandPurple font-bold text-xl">10</span> / 10
+                </div>
+                <div class="text-sm font-bold text-slate-600">
+                    Skor Game: <span id="gameScoreText" class="text-emerald-600 font-bold text-xl">0</span>
+                </div>
+                <button onclick="resetDragGame()" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-slate-600 font-bold">
+                    🔄 Reset Game
+                </button>
+            </div>
+
+            <!-- Drag Deck Container -->
+            <div id="cardDeck" class="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl flex flex-wrap gap-3 justify-center min-h-[110px] items-center">
+                <!-- Cards will be dynamically injected via JS -->
+            </div>
+
+            <!-- Drop Zones -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Zone 1: Perilaku Boleh / Terpuji -->
+                <div id="zoneGood" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'good')" class="bg-emerald-50 border-4 border-dashed border-emerald-400 rounded-3xl p-5 min-h-[220px] space-y-3 transition">
+                    <div class="flex items-center gap-2 text-emerald-700 font-bold text-lg border-b-2 border-emerald-200 pb-2">
+                        <span class="text-2xl">🟢</span>
+                        <span>PERILAKU BOLEH / PATUH ATURAN</span>
+                    </div>
+                    <p class="text-xs text-emerald-600 italic">Seret ke sini atau klik tombol "Pilih Boleh" pada kartu.</p>
+                    <div id="zoneGoodItems" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Zone 2: Perilaku Tidak Boleh / Melanggar -->
+                <div id="zoneBad" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'bad')" class="bg-rose-50 border-4 border-dashed border-rose-400 rounded-3xl p-5 min-h-[220px] space-y-3 transition">
+                    <div class="flex items-center gap-2 text-rose-700 font-bold text-lg border-b-2 border-rose-200 pb-2">
+                        <span class="text-2xl">🔴</span>
+                        <span>PERILAKU TIDAK BOLEH / MELANGGAR</span>
+                    </div>
+                    <p class="text-xs text-rose-600 italic">Seret ke sini atau klik tombol "Pilih Tidak Boleh" pada kartu.</p>
+                    <div id="zoneBadItems" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button onclick="switchTab('simulasi')" class="text-slate-500 font-bold hover:underline">
+                    ⬅ Kembali ke Simulasi
+                </button>
+                <button onclick="switchTab('kuis')" class="btn-bounce bg-brandPink text-white font-bold px-6 py-3 rounded-2xl shadow-md text-lg">
+                    Lanjut ke Kuis 📝 ➡
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. KUIS TAB (Fill in Blank & Fast Challenge with Timer) -->
+        <section id="tab-kuis" class="tab-content hidden space-y-6">
+            <div class="text-center space-y-2">
+                <span class="bg-brandPink text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Level Menantang • 10 Soal Isian & Timer</span>
+                <h2 class="text-3xl font-bold text-slate-800">📝 Kuis Cerdas Aturan Play</h2>
+                <p class="text-slate-600">Lengkapi kalimat rumpang di bawah ini dengan memilih kata yang paling tepat!</p>
+            </div>
+
+            <!-- Quiz Settings & Timer Bar -->
+            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-bold text-slate-600">Mode Timer Cepat (15 Detik/Soal):</span>
+                    <button onclick="toggleQuizTimer()" id="timerToggleBtn" class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 font-bold text-xs">
+                        OFF
+                    </button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-sm font-bold text-slate-600">Waktu: <span id="quizTimerText" class="text-rose-600 text-xl font-bold">15</span>s</div>
+                    <div class="text-sm font-bold text-slate-600">Soal: <span id="quizCurrentIndexText" class="text-brandPurple font-bold">1</span>/10</div>
+                </div>
+            </div>
+
+            <!-- Quiz Card -->
+            <div class="bg-white rounded-3xl border-4 border-pink-200 shadow-xl p-6 sm:p-8 space-y-6 relative overflow-hidden">
+                <!-- Question Title Header -->
+                <div class="space-y-3">
+                    <span id="quizCategoryBadge" class="bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full">Soal Isian Singkat</span>
+                    <h3 id="quizQuestionText" class="text-xl sm:text-2xl font-bold text-slate-800 leading-snug">
+                        Loading Soal...
+                    </h3>
+                </div>
+
+                <!-- Answer Word Options -->
+                <div id="quizOptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <!-- Dynamic option buttons -->
+                </div>
+
+                <!-- Immediate Feedback & Explanation Box -->
+                <div id="quizFeedbackBox" class="hidden p-4 rounded-2xl space-y-2 border-2 transition-all">
+                    <div class="flex items-center gap-2 font-bold text-lg" id="quizFeedbackTitle"></div>
+                    <p class="text-sm text-slate-700" id="quizFeedbackDesc"></p>
+                    <button onclick="nextQuizQuestion()" id="nextQuizBtn" class="btn-bounce mt-2 bg-brandBlue text-white px-5 py-2 rounded-xl font-bold text-sm">
+                        Lanjut Soal Berikutnya ➔
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. HASIL & REKAP TAB -->
+        <section id="tab-hasil" class="tab-content hidden space-y-6">
+            <div class="text-center space-y-2">
+                <span class="bg-brandGreen text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Pencapaian Akhir</span>
+                <h2 class="text-3xl font-bold text-slate-800">🏆 Rapor & Sertifikat Juara</h2>
+                <p class="text-slate-600">Hebat sekali! Lihatlah hasil petualangan belajar aturanmu hari ini!</p>
+            </div>
+
+            <!-- Certificate & Result Card Area -->
+            <div class="bg-white border-8 border-yellow-300 rounded-3xl p-6 sm:p-10 shadow-2xl relative space-y-8 text-center bg-[radial-gradient(#FFFBEB_1px,transparent_1px)] [background-size:16px_16px]">
+                
+                <!-- Stars Display -->
+                <div id="starRatingDisplay" class="text-5xl sm:text-6xl space-x-2">
+                    ⭐⭐⭐
+                </div>
+
+                <!-- Final Score Big Counter -->
+                <div class="space-y-1">
+                    <h3 class="text-lg font-bold text-slate-500 uppercase">Total Skor Kamu</h3>
+                    <div id="finalScoreDisplay" class="text-6xl sm:text-7xl font-extrabold text-amber-500">
+                        0
+                    </div>
+                </div>
+
+                <!-- Student Motivation Message -->
+                <div class="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl max-w-lg mx-auto">
+                    <p id="motivationText" class="text-base sm:text-lg font-bold text-amber-900">
+                        "Luar biasa! Kamu adalah sahabat bermain yang jujur, santun, dan hebat!"
+                    </p>
+                </div>
+
+                <!-- Badges Earned Section -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-slate-700 text-lg">🎖️ Lencana Penghargaan Diterima:</h4>
+                    <div id="badgesContainer" class="flex flex-wrap justify-center gap-4">
+                        <!-- Badges injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Printable Certificate Preview Box -->
+                <div class="border-4 border-dashed border-amber-400 p-6 rounded-2xl bg-amber-50/50 space-y-3 max-w-2xl mx-auto">
+                    <div class="text-xs font-bold text-amber-700 uppercase tracking-widest">Sertifikat Kelulusan Resmi</div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">PETUALANGAN BERMAIN JUJUR & RUKUN</h2>
+                    <p class="text-sm text-slate-600">Diberikan Kepada Siswa Kelas 1C:</p>
+                    <div id="certStudentName" class="text-3xl font-bold text-brandPurple underline decoration-wavy decoration-yellow-400">
+                        Budi
+                    </div>
+                    <p class="text-xs text-slate-500">Telah berhasil menyelesaikan seluruh materi, simulasi, game, dan kuis aturan bermain dengan sangat baik.</p>
+                </div>
+
+                <!-- Interactive Buttons -->
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <button onclick="window.print()" class="btn-bounce bg-brandPurple text-white px-6 py-3 rounded-2xl font-bold text-base shadow flex items-center gap-2">
+                        🖨️ Cetak Sertifikat
+                    </button>
+                    <button onclick="restartEntireApp()" class="btn-bounce bg-brandBlue text-white px-6 py-3 rounded-2xl font-bold text-base shadow flex items-center gap-2">
+                        🔄 Main Lagi Dari Awal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-800 text-slate-400 text-center py-4 text-xs font-medium border-t-4 border-brandPurple">
+        <div class="max-w-5xl mx-auto px-4 space-y-1">
+            <p>© 2026 Media Pembelajaran Interaktif SD Kelas 1C • Materi: Aturan Bermain</p>
+            <p class="text-slate-500">Didesain Ceria & Interactive untuk Pembelajaran Karakter Anak Usia Dini.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        /* ===================================================
+           STATE MANAGEMENT & VARIABLES
+           =================================================== */
+        let state = {
+            studentName: "Budi",
+            studentAvatar: "👦",
+            globalScore: 0,
+            dragGameScore: 0,
+            quizScore: 0,
+            currentQuizIndex: 0,
+            quizTimerActive: false,
+            quizTimerSeconds: 15,
+            quizTimerInterval: null,
+            dragCardsLeft: 10,
+            selectedDragCardId: null,
+            badges: []
+        };
+
+        /* ===================================================
+           DATA SETS
+           =================================================== */
+
+        // 1. Simulation Scenarios Data
+        const simScenarios = [
+            {
+                title: "Skenario 1: Antrean Perosotan 🛝",
+                desc: "Banyak teman antre mau naik perosotan di lapangan sekolah.",
+                optGood: "Mengantre dengan sabar di barisan belakang.",
+                optBad: "Mendorong teman dan menyerobot barisan.",
+                resultGood: {
+                    emoji: "😊🎉",
+                    title: "Semua Teman Senang & Aman!",
+                    desc: "Sebab: Kamu sabar mengantre. Akibat: Bermain lancar, tidak ada yang jatuh, dan semua menyukaimu!"
+                },
+                resultBad: {
+                    emoji: "😭💥",
+                    title: "Teman Jatuh & Terjadi Pertengkaran!",
+                    desc: "Sebab: Kamu dorong-dorongan. Akibat: Temanmu sakit karena jatuh, dan suasana bermain jadi sedih."
+                }
+            },
+            {
+                title: "Skenario 2: Selesai Main Lego 🧱",
+                desc: "Bel masuk kelas berbunyi, balok lego masih berserakan di lantai.",
+                optGood: "Merapikan lego ke dalam kotak bersama teman.",
+                optBad: "Langsung lari meninggalkan mainan berantakan.",
+                resultGood: {
+                    emoji: "✨🧹",
+                    title: "Kelas Rapi & Mainan Awet!",
+                    desc: "Sebab: Kamu rajin merapikan. Akibat: Ruangan bersih, mainan tidak terinjak rusak, guru tersenyum gembira!"
+                },
+                resultBad: {
+                    emoji: "⚠️🤕",
+                    title: "Mainan Terinjak & Hilang!",
+                    desc: "Sebab: Mainan dibiarkan berserakan. Akibat: Teman bisa tersandung jatuh, dan lego jadi cepat rusak/hilang."
+                }
+            },
+            {
+                title: "Skenario 3: Menyenggol Teman 💥",
+                desc: "Kamu tidak sengaja menyenggol teman sampai mainan plastiknya terjatuh.",
+                optGood: "Mengucapkan minta maaf dan membantu mengambilkan.",
+                optBad: "Marah-marah dan menyalahkan balik temanmu.",
+                resultGood: {
+                    emoji: "🤝❤️",
+                    title: "Hubungan Jadi Rukun Kembali!",
+                    desc: "Sebab: Kamu berani minta maaf & membantu. Akibat: Teman memaafkanmu dan kalian bisa main bersama lagi!"
+                },
+                resultBad: {
+                    emoji: "😡💔",
+                    title: "Terjadi Musuhan & Tangisan!",
+                    desc: "Sebab: Kamu marah dan tidak jujur. Akibat: Teman makin sedih dan tidak mau mengajakmu bermain lagi."
+                }
+            }
+        ];
+
+        // 2. Drag and Drop 10 Items Data
+        const dragItemsData = [
+            { id: 1, text: "Mengantre giliran naik ayunan", type: "good", emoji: "🛝" },
+            { id: 2, text: "Merapikan mainan setelah selesai", type: "good", emoji: "🧸" },
+            { id: 3, text: "Mendorong teman saat berlari", type: "bad", emoji: "🏃" },
+            { id: 4, text: "Meminjam mainan dengan sopan", type: "good", emoji: "🚗" },
+            { id: 5, text: "Merebut mainan dari tangan teman", type: "bad", emoji: "⚡" },
+            { id: 6, text: "Meminta maaf saat tidak sengaja salah", type: "good", emoji: "🤝" },
+            { id: 7, text: "Curang saat bermain petak sempet", type: "bad", emoji: "🙈" },
+            { id: 8, text: "Pamit orang tua sebelum bermain", type: "good", emoji: "🏡" },
+            { id: 9, text: "Ejek teman yang kalah bermain", type: "bad", emoji: "👅" },
+            { id: 10, text: "Membuang sampah bekas snack di lapangan", type: "bad", emoji: "🧃" }
+        ];
+
+        // 3. Quiz 10 Fill-in-the-Blank Questions
+        const quizQuestions = [
+            {
+                q: "Saat ingin menggunakan ayunan yang sedang dipakai teman, kita harus _____ giliran.",
+                options: ["Mengantre", "Merebut", "Marah"],
+                correct: 0,
+                exp: "Mengantre adalah contoh sikap tertib dan menghargai teman."
+            },
+            {
+                q: "Selesai bermain di kamar, mainan harus segera _____ agar tidak rusak.",
+                options: ["Dibiarkan", "Dirapikan", "Dibuang"],
+                correct: 1,
+                exp: "Merapikan mainan menjaga tempat tetap bersih dan aman."
+            },
+            {
+                q: "Sebelum pergi bermain ke rumah teman, kita wajib _____ kepada orang tua.",
+                options: ["Pamit", "Sembunyi", "Lari"],
+                correct: 0,
+                exp: "Berpamitan membuat orang tua tenang dan mengetahui keberadaan kita."
+            },
+            {
+                q: "Jika tidak sengaja merusakkan mainan teman, sikap yang baik adalah _____.",
+                options: ["Pura-pura tidak tahu", "Minta maaf", "Ejek teman"],
+                correct: 1,
+                exp: "Minta maaf menunjukkan sikap jujur dan bertanggung jawab."
+            },
+            {
+                q: "Bermain jujur membuat semua teman merasa _____.",
+                options: ["Sedih", "Senang & Nyaman", "Rugi"],
+                correct: 1,
+                exp: "Jujur dalam bermain menciptakan suasana rukun dan gembira."
+            },
+            {
+                q: "Sikap tidak boleh dilakukan saat teman menang bermain adalah _____.",
+                options: ["Memberi selamat", "Iri dan marah", "Tepuk tangan"],
+                correct: 1,
+                exp: "Kita harus bersikap sportif dan menghargai kemenangan teman."
+            },
+            {
+                q: "Aturan bermain dibuat supaya permainan berjalan dengan _____.",
+                options: ["Kacau", "Tertib dan Adil", "Berantakan"],
+                correct: 1,
+                exp: "Aturan membimbing kita bermain dengan aman dan adil."
+            },
+            {
+                q: "Saat bermain bersama, kita harus mau _____ mainan.",
+                options: ["Membeli", "Berbagi", "Menyimpan sendiri"],
+                correct: 1,
+                exp: "Berbagi membuat permainan semakin seru bersama-sama."
+            },
+            {
+                q: "Jika kita melanggar aturan bermain, teman-teman akan merasa _____.",
+                options: ["Kecewa", "Bangga", "Gembira"],
+                correct: 0,
+                exp: "Pelanggaran aturan merugikan dan membuat suasana jadi tidak menyenangkan."
+            },
+            {
+                q: "Sikap utama saat bermain kelompok adalah menjaga _____.",
+                options: ["Musuhan", "Kerukunan", "Pertengkaran"],
+                correct: 1,
+                exp: "Menjaga kerukunan adalah kunci agar pertemanan awet."
+            }
+        ];
+
+        /* ===================================================
+           SOUND SYNTHESIZER (WEB AUDIO API - NO EXTERNAL MEDIA)
+           =================================================== */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.3); // A5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now); // A3
+                    osc.frequency.exponentialRampToValueAtTime(110, now + 0.3); // A2
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'win') {
+                    // Short Win Arpeggio
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = freq;
+                        g.gain.setValueAtTime(0.2, now + idx * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.2);
+                        o.start(now + idx * 0.1);
+                        o.stop(now + idx * 0.1 + 0.2);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        function playTeacherVoice() {
+            playSound('correct');
+            const synth = window.speechSynthesis;
+            if ('speechSynthesis' in window) {
+                const utter = new SpeechSynthesisUtterance("Anak-anak hebat! Selalu ingat ya: Saat bermain kita harus jujur, antre, dan merapikan mainan kembali agar punya banyak teman!");
+                utter.lang = 'id-ID';
+                utter.rate = 0.9;
+                synth.speak(utter);
+            } else {
+                alert("Anak-anak hebat! Selalu ingat: Bermain harus jujur, antre, dan rukun!");
+            }
+        }
+
+        /* ===================================================
+           NAVIGATION & TAB SWITCHING
+           =================================================== */
+        function switchTab(tabId) {
+            playSound('click');
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Show target tab
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Reset navigation button styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn bg-white text-slate-600 px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 hover:bg-slate-100 active:scale-95';
+            });
+
+            // Highlight active navigation button
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = 'nav-btn bg-brandBlue text-white px-3 py-1.5 rounded-xl font-bold text-sm sm:text-base flex items-center gap-1 shadow hover:brightness-105 active:scale-95';
+            }
+
+            // Tab specific triggers
+            if (tabId === 'kuis') {
+                renderQuizQuestion();
+            } else if (tabId === 'hasil') {
+                renderFinalResults();
+            }
+        }
+
+        function selectAvatar(emoji) {
+            playSound('click');
+            state.studentAvatar = emoji;
+            document.getElementById('userAvatarHeader').innerText = emoji;
+            document.querySelectorAll('.avatar-option').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-yellow-300');
+                if (btn.innerText.includes(emoji)) {
+                    btn.classList.add('ring-4', 'ring-yellow-300');
+                }
+            });
+        }
+
+        function startJourney() {
+            const inputVal = document.getElementById('inputStudentName').value.trim();
+            if (inputVal) {
+                state.studentName = inputVal;
+                document.getElementById('userNameHeader').innerText = inputVal;
+                document.getElementById('certStudentName').innerText = inputVal;
+            }
+            switchTab('materi');
+            playSound('win');
+        }
+
+        /* ===================================================
+           SIMULATION LOGIC
+           =================================================== */
+        let currentSimScenarioIndex = 0;
+
+        function loadSimulationScenario(idx) {
+            playSound('click');
+            currentSimScenarioIndex = idx;
+            const data = simScenarios[idx];
+
+            document.getElementById('simTitle').innerText = data.title;
+            document.getElementById('simDesc').innerText = data.desc;
+            document.getElementById('simOptGood').innerText = data.optGood;
+            document.getElementById('simOptBad').innerText = data.optBad;
+
+            // Update Tab active style
+            document.querySelectorAll('.sim-scen-btn').forEach((btn, i) => {
+                if (i === idx) {
+                    btn.className = 'sim-scen-btn px-4 py-2 rounded-xl border-2 font-bold text-sm bg-purple-600 text-white border-purple-600';
+                } else {
+                    btn.className = 'sim-scen-btn px-4 py-2 rounded-xl border-2 font-bold text-sm bg-slate-100 text-slate-600 border-slate-200';
+                }
+            });
+
+            // Reset Result Stage
+            const stage = document.getElementById('simResultStage');
+            stage.className = "bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 p-6 text-center space-y-4 min-h-[250px] flex flex-col justify-center items-center";
+            document.getElementById('simReactionEmoji').innerText = "❓";
+            document.getElementById('simResultTitle').innerText = "Pilih Aksi Di Samping!";
+            document.getElementById('simResultDesc').innerText = "Klik salah satu pilihan di sebelah kiri untuk melihat akibatnya.";
+        }
+
+        function runSimulation(type) {
+            const data = simScenarios[currentSimScenarioIndex];
+            const stage = document.getElementById('simResultStage');
+
+            if (type === 'good') {
+                playSound('correct');
+                stage.className = "bg-emerald-50 rounded-2xl border-4 border-emerald-300 p-6 text-center space-y-4 min-h-[250px] flex flex-col justify-center items-center shadow-lg transition-all";
+                document.getElementById('simReactionEmoji').innerText = data.resultGood.emoji;
+                document.getElementById('simResultTitle').innerText = data.resultGood.title;
+                document.getElementById('simResultTitle').className = "text-lg font-bold text-emerald-800";
+                document.getElementById('simResultDesc').innerText = data.resultGood.desc;
+                addScore(10);
+            } else {
+                playSound('wrong');
+                stage.className = "bg-rose-50 rounded-2xl border-4 border-rose-300 p-6 text-center space-y-4 min-h-[250px] flex flex-col justify-center items-center shadow-lg transition-all";
+                document.getElementById('simReactionEmoji').innerText = data.resultBad.emoji;
+                document.getElementById('simResultTitle').innerText = data.resultBad.title;
+                document.getElementById('simResultTitle').className = "text-lg font-bold text-rose-800";
+                document.getElementById('simResultDesc').innerText = data.resultBad.desc;
+            }
+        }
+
+        /* ===================================================
+           DRAG AND DROP GAME LOGIC (+ Touch Fallback)
+           =================================================== */
+        function initDragGame() {
+            state.dragGameScore = 0;
+            state.dragCardsLeft = dragItemsData.length;
+            document.getElementById('gameRemainingCount').innerText = state.dragCardsLeft;
+            document.getElementById('gameScoreText').innerText = state.dragGameScore;
+
+            const deck = document.getElementById('cardDeck');
+            deck.innerHTML = '';
+            document.getElementById('zoneGoodItems').innerHTML = '';
+            document.getElementById('zoneBadItems').innerHTML = '';
+
+            // Shuffle cards
+            const shuffled = [...dragItemsData].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const card = document.createElement('div');
+                card.id = `drag-card-${item.id}`;
+                card.draggable = true;
+                card.ondragstart = (e) => dragStart(e, item);
+                card.className = "bg-white border-2 border-amber-300 rounded-2xl p-3 shadow-md cursor-grab active:cursor-grabbing flex flex-col sm:flex-row items-center gap-2 hover:border-amber-500 transition w-full sm:w-auto text-center sm:text-left";
+                
+                card.innerHTML = `
+                    <span class="text-2xl">${item.emoji}</span>
+                    <span class="text-xs font-bold text-slate-700">${item.text}</span>
+                    <div class="flex gap-1 mt-1 sm:mt-0 sm:ml-2">
+                        <button onclick="handleTapChoice(${item.id}, 'good')" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-1 rounded-lg">Pilih Boleh</button>
+                        <button onclick="handleTapChoice(${item.id}, 'bad')" class="text-[10px] bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-2 py-1 rounded-lg">Pilih Melanggar</button>
+                    </div>
+                `;
+                deck.appendChild(card);
+            });
+        }
+
+        function dragStart(e, item) {
+            e.dataTransfer.setData("text/plain", JSON.stringify(item));
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drop-zone-active');
+        }
+
+        function dragLeave(e) {
+            e.currentTarget.classList.remove('drop-zone-active');
+        }
+
+        function handleDrop(e, zoneType) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drop-zone-active');
+            const dataRaw = e.dataTransfer.getData("text/plain");
+            if (!dataRaw) return;
+            const item = JSON.parse(dataRaw);
+            processCardChoice(item, zoneType);
+        }
+
+        function handleTapChoice(itemId, zoneType) {
+            const item = dragItemsData.find(i => i.id === itemId);
+            if (item) {
+                processCardChoice(item, zoneType);
+            }
+        }
+
+        function processCardChoice(item, zoneType) {
+            const cardEl = document.getElementById(`drag-card-${item.id}`);
+            if (!cardEl) return; // already moved
+
+            if (item.type === zoneType) {
+                // Correct Answer
+                playSound('correct');
+                state.dragGameScore += 10;
+                addScore(10);
+
+                const miniBadge = document.createElement('div');
+                miniBadge.className = zoneType === 'good' 
+                    ? "bg-emerald-200 text-emerald-900 border border-emerald-400 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 animate-bounce"
+                    : "bg-rose-200 text-rose-900 border border-rose-400 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 animate-bounce";
+                miniBadge.innerHTML = `<span>${item.emoji}</span> <span>${item.text}</span> ✅`;
+
+                if (zoneType === 'good') {
+                    document.getElementById('zoneGoodItems').appendChild(miniBadge);
+                } else {
+                    document.getElementById('zoneBadItems').appendChild(miniBadge);
+                }
+
+                cardEl.remove();
+                state.dragCardsLeft--;
+                document.getElementById('gameRemainingCount').innerText = state.dragCardsLeft;
+                document.getElementById('gameScoreText').innerText = state.dragGameScore;
+
+                if (state.dragCardsLeft === 0) {
+                    playSound('win');
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                    addBadge("Lencana Anak Tertib 🥇");
+                }
+            } else {
+                // Incorrect Answer
+                playSound('wrong');
+                cardEl.classList.add('animate-shake');
+                setTimeout(() => cardEl.classList.remove('animate-shake'), 500);
+            }
+        }
+
+        function resetDragGame() {
+            playSound('click');
+            initDragGame();
+        }
+
+        /* ===================================================
+           QUIZ LOGIC WITH TIMER
+           =================================================== */
+        function renderQuizQuestion() {
+            clearInterval(state.quizTimerInterval);
+
+            if (state.currentQuizIndex >= quizQuestions.length) {
+                // Quiz Complete
+                switchTab('hasil');
+                return;
+            }
+
+            const qData = quizQuestions[state.currentQuizIndex];
+            document.getElementById('quizCurrentIndexText').innerText = state.currentQuizIndex + 1;
+            document.getElementById('quizQuestionText').innerText = qData.q;
+
+            // Reset Feedback Box
+            const fb = document.getElementById('quizFeedbackBox');
+            fb.classList.add('hidden');
+
+            // Render Option Buttons
+            const optContainer = document.getElementById('quizOptionsContainer');
+            optContainer.innerHTML = '';
+
+            qData.options.forEach((optText, i) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 font-bold text-slate-700 hover:border-brandPink hover:bg-pink-50 transition text-base sm:text-lg flex items-center justify-between";
+                btn.innerHTML = `<span>${optText}</span> <span class="text-xs bg-white px-2 py-1 rounded-lg border">Pilihan ${i+1}</span>`;
+                btn.onclick = () => checkQuizAnswer(i);
+                optContainer.appendChild(btn);
+            });
+
+            // Handle Timer if enabled
+            if (state.quizTimerActive) {
+                state.quizTimerSeconds = 15;
+                document.getElementById('quizTimerText').innerText = state.quizTimerSeconds;
+                state.quizTimerInterval = setInterval(() => {
+                    state.quizTimerSeconds--;
+                    document.getElementById('quizTimerText').innerText = state.quizTimerSeconds;
+                    if (state.quizTimerSeconds <= 0) {
+                        clearInterval(state.quizTimerInterval);
+                        playSound('wrong');
+                        showQuizFeedback(false, "Waktu Habis! Yuk lebih cepat lagi di soal berikutnya!");
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('quizTimerText').innerText = "--";
+            }
+        }
+
+        function toggleQuizTimer() {
+            playSound('click');
+            state.quizTimerActive = !state.quizTimerActive;
+            const btn = document.getElementById('timerToggleBtn');
+            if (state.quizTimerActive) {
+                btn.innerText = "ON ⚡";
+                btn.className = "px-3 py-1 rounded-full bg-emerald-500 text-white font-bold text-xs";
+            } else {
+                btn.innerText = "OFF";
+                btn.className = "px-3 py-1 rounded-full bg-slate-200 text-slate-700 font-bold text-xs";
+            }
+            renderQuizQuestion();
+        }
+
+        function checkQuizAnswer(selectedIdx) {
+            clearInterval(state.quizTimerInterval);
+            const qData = quizQuestions[state.currentQuizIndex];
+
+            // Disable options
+            const btns = document.querySelectorAll('#quizOptionsContainer button');
+            btns.forEach(b => b.disabled = true);
+
+            if (selectedIdx === qData.correct) {
+                playSound('correct');
+                addScore(10);
+                state.quizScore += 10;
+                showQuizFeedback(true, qData.exp);
+            } else {
+                playSound('wrong');
+                showQuizFeedback(false, qData.exp);
+            }
+        }
+
+        function showQuizFeedback(isCorrect, expText) {
+            const fb = document.getElementById('quizFeedbackBox');
+            const title = document.getElementById('quizFeedbackTitle');
+            const desc = document.getElementById('quizFeedbackDesc');
+
+            fb.classList.remove('hidden');
+            if (isCorrect) {
+                fb.className = "p-4 rounded-2xl space-y-2 border-2 transition-all bg-emerald-50 border-emerald-300 text-emerald-900";
+                title.innerHTML = "🎉 Jawabanmu Benar!";
+            } else {
+                fb.className = "p-4 rounded-2xl space-y-2 border-2 transition-all bg-rose-50 border-rose-300 text-rose-900";
+                title.innerHTML = "💡 Hampir Benar! Yuk Pelajari:";
+            }
+            desc.innerText = expText;
+        }
+
+        function nextQuizQuestion() {
+            playSound('click');
+            state.currentQuizIndex++;
+            renderQuizQuestion();
+        }
+
+        /* ===================================================
+           SCORES, PROGRESS, BADGES & RESULTS LOGIC
+           =================================================== */
+        function addScore(pts) {
+            state.globalScore += pts;
+            document.getElementById('globalScore').innerText = state.globalScore;
+
+            // Max achievable approx 250
+            const pct = Math.min(100, Math.round((state.globalScore / 230) * 100));
+            document.getElementById('globalProgressBar').style.width = pct + "%";
+
+            // Award Badges conditionally
+            if (state.globalScore >= 50) addBadge("Lencana Sahabat Baik 🤝");
+            if (state.globalScore >= 120) addBadge("Lencana Bermain Jujur ⭐");
+            if (state.globalScore >= 200) addBadge("Lencana Juara Rukun 🏆");
+        }
+
+        function addBadge(badgeName) {
+            if (!state.badges.includes(badgeName)) {
+                state.badges.push(badgeName);
+            }
+        }
+
+        function renderFinalResults() {
+            document.getElementById('finalScoreDisplay').innerText = state.globalScore;
+
+            // Star calculation
+            let stars = "⭐";
+            let motivate = "Terus semangat belajar ya! Kamu pasti bisa jadi kawan yang manis!";
+            if (state.globalScore >= 100) {
+                stars = "⭐⭐";
+                motivate = "Hebat Sekali! Kamu sudah memahami aturan bermain dengan sangat baik!";
+            }
+            if (state.globalScore >= 180) {
+                stars = "⭐⭐⭐";
+                motivate = "Luar biasa! Kamu adalah Teladan Sahabat Jujur & Rukun di SD Kelas 1C!";
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
+            }
+
+            document.getElementById('starRatingDisplay').innerText = stars;
+            document.getElementById('motivationText').innerText = `"${motivate}"`;
+
+            // Render Badges
+            const bgContainer = document.getElementById('badgesContainer');
+            bgContainer.innerHTML = '';
+            if (state.badges.length === 0) {
+                bgContainer.innerHTML = `<span class="text-xs text-slate-400 italic">Selesaikan permainan & kuis untuk membuka lencana!</span>`;
+            } else {
+                state.badges.forEach(b => {
+                    const el = document.createElement('div');
+                    el.className = "bg-amber-100 border-2 border-amber-400 text-amber-900 px-4 py-2 rounded-2xl font-bold text-sm shadow-md animate-bounce";
+                    el.innerText = b;
+                    bgContainer.appendChild(el);
+                });
+            }
+        }
+
+        function restartEntireApp() {
+            playSound('click');
+            state.globalScore = 0;
+            state.dragGameScore = 0;
+            state.quizScore = 0;
+            state.currentQuizIndex = 0;
+            state.badges = [];
+            document.getElementById('globalScore').innerText = "0";
+            document.getElementById('globalProgressBar').style.width = "0%";
+            initDragGame();
+            switchTab('beranda');
+        }
+
+        /* ===================================================
+           INITIALIZATION ON PAGE LOAD
+           =================================================== */
+        window.onload = function() {
+            initDragGame();
+            loadSimulationScenario(0);
+        };
+    </script>
+</body>
+</html>
